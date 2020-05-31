@@ -2031,7 +2031,7 @@ void HAL_DFSDM_FilterMspDeInit(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
   * @retval BSP AUDIO status
   * @note   The SAI PLL input clock must be configured in the user application.
   *         The SAI PLL configuration done within this function assumes that
-  *         the SAI PLL input clock runs at 8 MHz.
+  *         the SAI PLL input clock runs at 4 MHz.
   */
 static uint8_t AUDIO_SAIPLLConfig(uint32_t Frequency)
 {
@@ -2046,10 +2046,10 @@ static uint8_t AUDIO_SAIPLLConfig(uint32_t Frequency)
   {
     /* Configure PLLSAI prescalers */
     /* SAI clock config
-    PLLSAI2_VCO= 8 Mhz * PLLSAI1N = 8 * 24 = VCO_192M
+    PLLSAI2_VCO= 4 Mhz * PLLSAI1N = 4 * 48 = VCO_192M
     SAI_CK_x = PLLSAI2_VCO/PLLSAI1P = 192/17 = 11.294 Mhz */
     RCC_ExCLKInitStruct.PeriphClockSelection    = RCC_PERIPHCLK_SAI1;
-    RCC_ExCLKInitStruct.PLLSAI2.PLLSAI2N        = 24;
+    RCC_ExCLKInitStruct.PLLSAI2.PLLSAI2N        = 24*2;
     RCC_ExCLKInitStruct.PLLSAI2.PLLSAI2P        = 17;
     RCC_ExCLKInitStruct.PLLSAI2.PLLSAI2ClockOut = RCC_PLLSAI2_SAI2CLK;
     RCC_ExCLKInitStruct.Sai1ClockSelection      = RCC_SAI1CLKSOURCE_PLLSAI2;
@@ -2057,10 +2057,10 @@ static uint8_t AUDIO_SAIPLLConfig(uint32_t Frequency)
   else /* AUDIO_FREQUENCY_8K, AUDIO_FREQUENCY_16K, AUDIO_FREQUENCY_48K, AUDIO_FREQUENCY_96K */
   {
     /* SAI clock config
-    PLLSAI2_VCO= 8 Mhz * PLLSAI1N = 8 * 43 = VCO_344M
+    PLLSAI2_VCO= 4 Mhz * PLLSAI1N = 4 * 86 = VCO_344M
     SAI_CK_x = PLLSAI1_VCO/PLLSAI2P = 344/7 = 49.142 Mhz */
     RCC_ExCLKInitStruct.PeriphClockSelection    = RCC_PERIPHCLK_SAI1;
-    RCC_ExCLKInitStruct.PLLSAI2.PLLSAI2N        = 43;
+    RCC_ExCLKInitStruct.PLLSAI2.PLLSAI2N        = 43*2;
     RCC_ExCLKInitStruct.PLLSAI2.PLLSAI2P        = 7;
     RCC_ExCLKInitStruct.PLLSAI2.PLLSAI2ClockOut = RCC_PLLSAI2_SAI2CLK;
     RCC_ExCLKInitStruct.Sai1ClockSelection      = RCC_SAI1CLKSOURCE_PLLSAI2;
