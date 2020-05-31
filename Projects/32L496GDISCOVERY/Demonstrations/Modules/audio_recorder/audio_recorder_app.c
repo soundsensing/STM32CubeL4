@@ -219,6 +219,9 @@ AUDIO_RECORDER_ErrorTypdef  AUDIO_RECORDER_SelectFile(char* file, uint8_t mode)
         Error_Handler();
       }
     }
+    else {
+        ret = AUDIO_RECORDER_ERROR_NONE;
+    }
   }
   else
   {
