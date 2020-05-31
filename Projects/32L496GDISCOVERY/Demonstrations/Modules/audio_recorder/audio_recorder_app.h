@@ -26,7 +26,47 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
+//#include "../../Core/Inc/main.h"
+
+#include "stm32l4xx_hal.h"
+#include "stm32l4xx_it.h"
+
+#include "stm32l496g_discovery.h"
+#include "stm32l496g_discovery_lcd.h"
+#include "stm32l496g_discovery_ts.h"
+   
+/* DISCO includes component */
+#include "stm32l496g_discovery_audio.h"
+#include "stm32l496g_discovery_sd.h"
+#include "stm32l496g_discovery_qspi.h"
+   
+/* CMSIS OS includes component */
+#include "cmsis_os.h"   
+
+/* FatFs includes components */
+#include "ff_gen_drv.h"
+#include "../../Core/Inc/sd_diskio.h"
+
+#include "usbd_core.h"
+ 
+/* Kernel includes components */
+#if 0
+#include "k_module.h"
+#include "k_storage.h"
+#include "k_rtc.h"    
+#include "k_bsp.h"   
+#include "k_calibration.h"
+#include "k_mfx.h"
+#endif   
+
+/* utilities and standard includes components */   
+//#include "cpu_utils.h"
+
+#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
 #include "../common/audio_if.h"   
 /* Exported constants --------------------------------------------------------*/
 #define AUDIO_REC_BIT_RESOLUTION           16
