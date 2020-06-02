@@ -1199,7 +1199,7 @@ void AUDIO_IO_DeInit(void)
 }
 
 
-#if 1 // db20
+#if 0 // db20
 void AUDIO_IO_Write(uint8_t Addr, uint8_t Reg, uint8_t Value)
 {
   I2C1_WriteBuffer(Addr, (uint16_t)Reg, I2C_MEMADD_SIZE_8BIT, &Value, 1);
@@ -1216,14 +1216,14 @@ uint8_t AUDIO_IO_Read(uint8_t Addr, uint8_t Reg)
 #else // DISCOL496
 void AUDIO_IO_Write(uint8_t Addr, uint8_t Reg, uint8_t Value)
 {
-  I2C1_WriteBuffer(Addr, (uint16_t)Reg, I2C_MEMADD_SIZE_8BIT, &Value, 1);
+  I2C2_WriteBuffer(Addr, (uint16_t)Reg, I2C_MEMADD_SIZE_8BIT, &Value, 1);
 }
 
 uint8_t AUDIO_IO_Read(uint8_t Addr, uint8_t Reg)
 {
   uint8_t Read_Value = 0;
 
-  I2C1_ReadBuffer((uint16_t) Addr, (uint16_t) Reg, I2C_MEMADD_SIZE_8BIT, &Read_Value, 1);
+  I2C2_ReadBuffer((uint16_t) Addr, (uint16_t) Reg, I2C_MEMADD_SIZE_8BIT, &Read_Value, 1);
 
   return Read_Value;
 }
@@ -1240,7 +1240,83 @@ void AUDIO_IO_Delay(uint32_t Delay)
 }
 
 
+#if 1
 
+void SENSOR_IO_Init(void)
+{
+//  I2Cx_Init(&hi2c1);
+}
+
+/**
+  * @brief  DeInitializes Sensors low level.
+  * @retval None
+  */
+void SENSOR_IO_DeInit(void)
+{
+//  I2Cx_DeInit(&hi2c1);
+}
+
+/**
+  * @brief  Writes a single data.
+  * @param  Addr: I2C address
+  * @param  Reg: Reg address
+  * @param  Value: Data to be written
+  * @retval None
+  */
+void SENSOR_IO_Write(uint8_t Addr, uint8_t Reg, uint8_t Value)
+{
+  return AUDIO_IO_Write(Addr, Reg, Value);
+}
+
+
+uint8_t SENSOR_IO_Read(uint8_t Addr, uint8_t Reg)
+{
+  return AUDIO_IO_Read(Addr, Reg);
+}
+
+
+uint16_t SENSOR_IO_ReadMultiple(uint8_t Addr, uint8_t Reg, uint8_t *Buffer, uint16_t Length)
+{
+    return I2Cx_ReadMultiple(&I2c2Handle, Addr, (uint16_t)Reg, I2C_MEMADD_SIZE_8BIT, Buffer, Length);
+}
+
+void SENSOR_IO_WriteMultiple(uint8_t Addr, uint8_t Reg, uint8_t *Buffer, uint16_t Length)
+{
+    I2Cx_WriteMultiple(&I2c2Handle, Addr, (uint16_t)Reg, I2C_MEMADD_SIZE_8BIT, Buffer, Length);
+}
+
+
+/**
+  * @brief  Delay function used in TouchScreen low level driver.
+  * @param  Delay: Delay in ms
+  * @retval None
+  */
+void SENSOR_IO_Delay(uint32_t Delay)
+{
+  HAL_Delay(Delay);
+}
+
+
+void ACCELERO_IO_Init(void)
+{
+//  I2Cx_Init(&hi2c1);
+}
+
+void ACCELERO_IO_Write(uint8_t Addr, uint8_t Reg, uint8_t Value)
+{
+  I2C2_WriteBuffer(Addr, (uint16_t)Reg, I2C_MEMADD_SIZE_8BIT, &Value, 1);
+}
+
+uint8_t ACCELERO_IO_Read(uint8_t Addr, uint8_t Reg)
+{
+  uint8_t Read_Value = 0;
+
+  I2C2_ReadBuffer((uint16_t) Addr, (uint16_t) Reg, I2C_MEMADD_SIZE_8BIT, &Read_Value, 1);
+
+  return Read_Value;
+}
+
+#endif
 
 /*************************** FMC Routines ************************************/
 /**

@@ -46,11 +46,6 @@
 #include "sd_diskio.h"
 
 #include "usbd_core.h"
-   
-/* GUI includes components */
-#include "GUI.h"
-#include "DIALOG.h"
-#include "ST_GUI_Addons.h"
  
 /* Kernel includes components */
 #include "k_module.h"

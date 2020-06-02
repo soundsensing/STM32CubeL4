@@ -2023,6 +2023,8 @@ static uint8_t AUDIO_SAIPLLConfig(uint32_t Frequency)
   /* Retrieve actual RCC configuration */
   HAL_RCCEx_GetPeriphCLKConfig(&RCC_ExCLKInitStruct);
 
+#error "foo"
+
   if (   (Frequency == AUDIO_FREQUENCY_11K)
       || (Frequency == AUDIO_FREQUENCY_22K)
       || (Frequency == AUDIO_FREQUENCY_44K) )

@@ -129,8 +129,10 @@ uint8_t BSP_IO_Init(void)
   uint8_t ret = IO_ERROR;
   uint8_t mfxstm32l152_id = 0;
 
+
   if (io1_driver == NULL) /* Checks if MFX initialization has been already done */
   {
+#if 0
     mfxstm32l152_idd_drv.WakeUp(IO1_I2C_ADDRESS);
 
     HAL_Delay(10);
@@ -140,9 +142,11 @@ uint8_t BSP_IO_Init(void)
 
     if ((mfxstm32l152_id == MFXSTM32L152_ID_1) || (mfxstm32l152_id == MFXSTM32L152_ID_2))
     {
+#endif
       /* Initialize the MFX */
       io1_driver = &mfxstm32l152_io_drv;
-
+      ret = IO_OK;
+#if 0
       /* Initialize the MFX IO driver structure  */
       if (io1_driver->Init != NULL)
       {
@@ -152,6 +156,7 @@ uint8_t BSP_IO_Init(void)
         ret = IO_OK;
       }
     }
+#endif
   }
   else
   {
@@ -174,8 +179,10 @@ uint32_t BSP_IO_ITGetStatus(uint32_t IO_Pin)
 
   io1_pin = (IO_Pin & IO1_PIN_ALL) >> IO1_PIN_OFFSET;
 
+#if 0
   /* Return the MFX  Pin IT status */
   status |= (io1_driver->ITStatus(IO1_I2C_ADDRESS, io1_pin)) << IO1_PIN_OFFSET;
+#endif
 
   return status;
 }
@@ -192,8 +199,10 @@ void BSP_IO_ITClear(uint32_t IO_Pin)
 
   io1_pin = (IO_Pin & IO1_PIN_ALL) >> IO1_PIN_OFFSET;
 
+#if 0
   /* Clears the selected IO Expander 1 pin(s) mode */
   io1_driver->ClearIT(IO1_I2C_ADDRESS, io1_pin);
+#endif
 
 }
 
@@ -217,9 +226,10 @@ uint8_t BSP_IO_ConfigPin(uint32_t IO_Pin, IO_ModeTypedef IO_Mode)
 
   io1_pin = (IO_Pin & IO1_PIN_ALL) >> IO1_PIN_OFFSET;
 
-
+#if 0
   /* Configure the selected IO Expander 1 pin(s) mode */
   io1_driver->Config(IO1_I2C_ADDRESS, io1_pin, IO_Mode);
+#endif
 
   return IO_OK;
 }
@@ -235,11 +245,12 @@ void BSP_IO_WritePin(uint32_t IO_Pin, uint8_t PinState)
 {
   uint32_t io1_pin = 0;
 
+#if 0
   io1_pin = (IO_Pin & IO1_PIN_ALL) >> IO1_PIN_OFFSET;
 
   /* Sets the IO Expander 1 selected pins state */
   io1_driver->WritePin(IO1_I2C_ADDRESS, io1_pin, PinState);
-
+#endif
 }
 
 /**
@@ -253,11 +264,12 @@ uint32_t BSP_IO_ReadPin(uint32_t IO_Pin)
   uint32_t pin_state = 0;
   uint32_t io1_pin = 0;
 
+#if 0
   io1_pin = (IO_Pin & IO1_PIN_ALL) >> IO1_PIN_OFFSET;
 
   /* Gets the IO Expander 1 selected pins current state */
   pin_state |= (io1_driver->ReadPin(IO1_I2C_ADDRESS, io1_pin)) << IO1_PIN_OFFSET;
-
+#endif
 
   return pin_state;
 }
@@ -272,6 +284,7 @@ void BSP_IO_TogglePin(uint32_t IO_Pin)
 {
   uint32_t io1_pin = 0;
 
+#if 0
   io1_pin = (IO_Pin & IO1_PIN_ALL) >> IO1_PIN_OFFSET;
 
   /* Toggles the IO Expander 1 selected pins state */
@@ -283,6 +296,7 @@ void BSP_IO_TogglePin(uint32_t IO_Pin)
   {
     BSP_IO_WritePin(io1_pin, GPIO_PIN_RESET);  /* Set */
   }
+#endif
 
 }
 

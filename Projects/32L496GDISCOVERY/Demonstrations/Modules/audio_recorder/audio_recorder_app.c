@@ -567,7 +567,7 @@ void BSP_AUDIO_IN_Error_CallBack(void)
   * @param  None
   * @retval None
   */
-static void AUDIO_TransferComplete_CallBack(void)
+void AUDIO_TransferComplete_CallBack(void)
 {
   if(haudio.in.state == AUDIO_RECORDER_PLAYING)
   {
@@ -584,7 +584,7 @@ static void AUDIO_TransferComplete_CallBack(void)
   * @param  None
   * @retval None
   */
-static void AUDIO_HalfTransfer_CallBack(void)
+void AUDIO_HalfTransfer_CallBack(void)
 { 
   if(haudio.in.state == AUDIO_RECORDER_PLAYING)
   {
@@ -601,7 +601,7 @@ static void AUDIO_HalfTransfer_CallBack(void)
   * @param  None
   * @retval None
   */
-static void AUDIO_Error_CallBack(void)
+void AUDIO_Error_CallBack(void)
 {
   haudio.in.state = AUDIO_RECORDER_ERROR;
 }

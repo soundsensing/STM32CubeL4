@@ -305,25 +305,25 @@ typedef struct
 /* User can use this section to tailor I2C2 instance used and associated
    resources */
 /* Definition for I2C2 Pins */
-#define DISCOVERY_I2C2_SCL_PIN                  GPIO_PIN_4
-#define DISCOVERY_I2C2_SCL_GPIO_PORT            GPIOH
-#define DISCOVERY_I2C2_SDA_PIN                  GPIO_PIN_14
+#define DISCOVERY_I2C2_SCL_PIN                  GPIO_PIN_8
+#define DISCOVERY_I2C2_SCL_GPIO_PORT            GPIOB
+#define DISCOVERY_I2C2_SDA_PIN                  GPIO_PIN_7
 #define DISCOVERY_I2C2_SDA_GPIO_PORT            GPIOB
 #define DISCOVERY_I2C2_SCL_SDA_AF               GPIO_AF4_I2C2
 /* Definition for I2C2 clock resources */
-#define DISCOVERY_I2C2                          I2C2
-#define DISCOVERY_I2C2_CLK_ENABLE()             __HAL_RCC_I2C2_CLK_ENABLE()
-#define DISCOVERY_I2C2_CLK_DISABLE()            __HAL_RCC_I2C2_CLK_DISABLE()
+#define DISCOVERY_I2C2                          I2C1
+#define DISCOVERY_I2C2_CLK_ENABLE()             __HAL_RCC_I2C1_CLK_ENABLE()
+#define DISCOVERY_I2C2_CLK_DISABLE()            __HAL_RCC_I2C1_CLK_DISABLE()
 #define DISCOVERY_I2C2_SDA_GPIO_CLK_ENABLE()    __HAL_RCC_GPIOB_CLK_ENABLE()
-#define DISCOVERY_I2C2_SCL_GPIO_CLK_ENABLE()    __HAL_RCC_GPIOH_CLK_ENABLE()
+#define DISCOVERY_I2C2_SCL_GPIO_CLK_ENABLE()    __HAL_RCC_GPIOB_CLK_ENABLE()
 #define DISCOVERY_I2C2_SDA_GPIO_CLK_DISABLE()   __HAL_RCC_GPIOB_CLK_DISABLE()
-#define DISCOVERY_I2C2_SCL_GPIO_CLK_DISABLE()   __HAL_RCC_GPIOH_CLK_DISABLE()
-#define DISCOVERY_I2C2_FORCE_RESET()            __HAL_RCC_I2C2_FORCE_RESET()
-#define DISCOVERY_I2C2_RELEASE_RESET()          __HAL_RCC_I2C2_RELEASE_RESET()
+#define DISCOVERY_I2C2_SCL_GPIO_CLK_DISABLE()   __HAL_RCC_GPIOB_CLK_DISABLE()
+#define DISCOVERY_I2C2_FORCE_RESET()            __HAL_RCC_I2C1_FORCE_RESET()
+#define DISCOVERY_I2C2_RELEASE_RESET()          __HAL_RCC_I2C1_RELEASE_RESET()
 
 /* Definition for I2C2's NVIC */
-#define DISCOVERY_I2C2_EV_IRQn                  I2C2_EV_IRQn
-#define DISCOVERY_I2C2_ER_IRQn                  I2C2_ER_IRQn
+#define DISCOVERY_I2C2_EV_IRQn                  I2C1_EV_IRQn
+#define DISCOVERY_I2C2_ER_IRQn                  I2C1_ER_IRQn
 
 /* I2C TIMING Register define when I2C clock source is SYSCLK */
 /* I2C TIMING is calculated in case of the I2C Clock source is the SYSCLK = 80 MHz */
