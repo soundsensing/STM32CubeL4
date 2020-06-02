@@ -1198,32 +1198,36 @@ void AUDIO_IO_DeInit(void)
 
 }
 
-/**
-  * @brief  Writes a single data.
-  * @param  Addr: I2C address
-  * @param  Reg: Reg address
-  * @param  Value: Data to be written
-  * @retval None
-  */
+
+#if 1 // db20
 void AUDIO_IO_Write(uint8_t Addr, uint8_t Reg, uint8_t Value)
 {
-  I2C2_WriteBuffer(Addr, (uint16_t)Reg, I2C_MEMADD_SIZE_8BIT, &Value, 1);
+  I2C1_WriteBuffer(Addr, (uint16_t)Reg, I2C_MEMADD_SIZE_8BIT, &Value, 1);
 }
 
-/**
-  * @brief  Reads a single data.
-  * @param  Addr: I2C address
-  * @param  Reg: Reg address
-  * @retval Data to be read
-  */
 uint8_t AUDIO_IO_Read(uint8_t Addr, uint8_t Reg)
 {
   uint8_t Read_Value = 0;
 
-  I2C2_ReadBuffer((uint16_t) Addr, (uint16_t) Reg, I2C_MEMADD_SIZE_8BIT, &Read_Value, 1);
+  I2C1_ReadBuffer((uint16_t) Addr, (uint16_t) Reg, I2C_MEMADD_SIZE_8BIT, &Read_Value, 1);
 
   return Read_Value;
 }
+#else // DISCOL496
+void AUDIO_IO_Write(uint8_t Addr, uint8_t Reg, uint8_t Value)
+{
+  I2C1_WriteBuffer(Addr, (uint16_t)Reg, I2C_MEMADD_SIZE_8BIT, &Value, 1);
+}
+
+uint8_t AUDIO_IO_Read(uint8_t Addr, uint8_t Reg)
+{
+  uint8_t Read_Value = 0;
+
+  I2C1_ReadBuffer((uint16_t) Addr, (uint16_t) Reg, I2C_MEMADD_SIZE_8BIT, &Read_Value, 1);
+
+  return Read_Value;
+}
+#endif
 
 /**
   * @brief  AUDIO Codec delay

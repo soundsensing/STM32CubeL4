@@ -254,10 +254,10 @@ typedef struct
 /* User can use this section to tailor I2C1 instance used and associated
    resources */
 /* Definition for I2C1 Pins */
-#define DISCOVERY_I2C1_SCL_GPIO_PORT            GPIOG
-#define DISCOVERY_I2C1_SDA_GPIO_PORT            GPIOG
-#define DISCOVERY_I2C1_SCL_PIN                  GPIO_PIN_14
-#define DISCOVERY_I2C1_SDA_PIN                  GPIO_PIN_13
+#define DISCOVERY_I2C1_SCL_GPIO_PORT            GPIOB
+#define DISCOVERY_I2C1_SDA_GPIO_PORT            GPIOB
+#define DISCOVERY_I2C1_SCL_PIN                  GPIO_PIN_8
+#define DISCOVERY_I2C1_SDA_PIN                  GPIO_PIN_7
 
 #define DISCOVERY_I2C1_SCL_SDA_AF               GPIO_AF4_I2C1
 
