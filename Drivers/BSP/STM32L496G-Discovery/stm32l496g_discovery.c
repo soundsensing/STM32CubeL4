@@ -1244,7 +1244,7 @@ void AUDIO_IO_Delay(uint32_t Delay)
 
 void SENSOR_IO_Init(void)
 {
-//  I2Cx_Init(&hi2c1);
+    AUDIO_IO_Init();
 }
 
 /**
@@ -1253,6 +1253,7 @@ void SENSOR_IO_Init(void)
   */
 void SENSOR_IO_DeInit(void)
 {
+    AUDIO_IO_DeInit();
 //  I2Cx_DeInit(&hi2c1);
 }
 
@@ -1299,7 +1300,7 @@ void SENSOR_IO_Delay(uint32_t Delay)
 
 void ACCELERO_IO_Init(void)
 {
-//  I2Cx_Init(&hi2c1);
+    AUDIO_IO_Init();
 }
 
 void ACCELERO_IO_Write(uint8_t Addr, uint8_t Reg, uint8_t Value)
