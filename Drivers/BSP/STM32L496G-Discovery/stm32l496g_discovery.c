@@ -132,7 +132,7 @@ const uint16_t COM_RX_AF[COMn] = {DISCOVERY_COM1_RX_AF};
 uint32_t I2c1Timeout = DISCOVERY_I2C2_TIMEOUT_MAX;  /*<! Value of Timeout when I2C1 communication fails */
 uint32_t I2c2Timeout = DISCOVERY_I2C2_TIMEOUT_MAX;  /*<! Value of Timeout when I2C2 communication fails */
 uint32_t ts_io_init = 0;
-static I2C_HandleTypeDef I2c2Handle = {0};
+I2C_HandleTypeDef I2c2Handle = {0};
 static I2C_HandleTypeDef hI2cTSHandler = {0}; /* Touch Screen (Capacitive Touch Panel) Handler */
 static I2C_HandleTypeDef hI2cAudioHandler = {0};
 static I2C_HandleTypeDef hI2cCameraHandler = {0} ;
@@ -150,12 +150,7 @@ static I2C_HandleTypeDef hI2cCameraHandler = {0} ;
 #if defined(HAL_I2C_MODULE_ENABLED)
 static void               I2C2_MspInit(I2C_HandleTypeDef *hi2c);
 static void               I2C2_MspDeInit(I2C_HandleTypeDef *hi2c);
-static void               I2C2_WriteData(uint16_t Addr, uint16_t Reg, uint16_t RegSize, uint8_t Value);
-static HAL_StatusTypeDef  I2C2_WriteBuffer(uint16_t Addr, uint16_t Reg, uint16_t RegSize, uint8_t *pBuffer, uint16_t Length);
-static uint8_t            I2C2_ReadData(uint16_t Addr, uint16_t Reg, uint16_t RegSize);
-static HAL_StatusTypeDef  I2C2_ReadBuffer(uint16_t Addr, uint16_t Reg, uint16_t RegSize, uint8_t *pBuffer, uint16_t Length);
 static void               I2C2_Error(void);
-
 #endif/* HAL_I2C_MODULE_ENABLED */
 
 
@@ -675,7 +670,7 @@ static void I2C2_MspDeInit(I2C_HandleTypeDef *hi2c)
   * @param  Value: The target register value to be written
   * @retval None
   */
-static void I2C2_WriteData(uint16_t Addr, uint16_t Reg, uint16_t RegSize, uint8_t Value)
+void I2C2_WriteData(uint16_t Addr, uint16_t Reg, uint16_t RegSize, uint8_t Value)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
@@ -703,7 +698,7 @@ static void I2C2_WriteData(uint16_t Addr, uint16_t Reg, uint16_t RegSize, uint8_
   * @param  Length: buffer size to be written
   * @retval None
   */
-static HAL_StatusTypeDef I2C2_WriteBuffer(uint16_t Addr, uint16_t Reg, uint16_t RegSize, uint8_t *pBuffer, uint16_t Length)
+HAL_StatusTypeDef I2C2_WriteBuffer(uint16_t Addr, uint16_t Reg, uint16_t RegSize, uint8_t *pBuffer, uint16_t Length)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
@@ -731,7 +726,7 @@ static HAL_StatusTypeDef I2C2_WriteBuffer(uint16_t Addr, uint16_t Reg, uint16_t 
   * @param  RegSize: The target register size (can be 8BIT or 16BIT)
   * @retval read register value
   */
-static uint8_t I2C2_ReadData(uint16_t Addr, uint16_t Reg, uint16_t RegSize)
+uint8_t I2C2_ReadData(uint16_t Addr, uint16_t Reg, uint16_t RegSize)
 {
   HAL_StatusTypeDef status = HAL_OK;
   uint8_t value = 0x0;
@@ -753,7 +748,7 @@ static uint8_t I2C2_ReadData(uint16_t Addr, uint16_t Reg, uint16_t RegSize)
   return value;
 }
 
-static uint8_t I2C2_isDeviceReady(uint16_t Addr, uint32_t trial)
+uint8_t I2C2_isDeviceReady(uint16_t Addr, uint32_t trial)
 {
   HAL_StatusTypeDef status = HAL_OK;
   uint8_t value = 0x0;
@@ -784,7 +779,7 @@ static uint8_t I2C2_isDeviceReady(uint16_t Addr, uint32_t trial)
   * @param  Length: length of the data
   * @retval 0 if no problems to read multiple data
   */
-static HAL_StatusTypeDef I2C2_ReadBuffer(uint16_t Addr, uint16_t Reg, uint16_t RegSize, uint8_t *pBuffer, uint16_t Length)
+HAL_StatusTypeDef I2C2_ReadBuffer(uint16_t Addr, uint16_t Reg, uint16_t RegSize, uint8_t *pBuffer, uint16_t Length)
 {
   HAL_StatusTypeDef status = HAL_OK;
 

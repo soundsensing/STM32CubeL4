@@ -563,6 +563,10 @@ void FMC_BANK1_MspDeInit(void);
 #if defined(HAL_I2C_MODULE_ENABLED)
 void I2C2_Init(void);
 void I2C2_DeInit(void);
+void               I2C2_WriteData(uint16_t Addr, uint16_t Reg, uint16_t RegSize, uint8_t Value);
+HAL_StatusTypeDef  I2C2_WriteBuffer(uint16_t Addr, uint16_t Reg, uint16_t RegSize, uint8_t *pBuffer, uint16_t Length);
+uint8_t            I2C2_ReadData(uint16_t Addr, uint16_t Reg, uint16_t RegSize);
+HAL_StatusTypeDef  I2C2_ReadBuffer(uint16_t Addr, uint16_t Reg, uint16_t RegSize, uint8_t *pBuffer, uint16_t Length);
 #endif /* HAL_I2C_MODULE_ENABLED */
 
 /**
