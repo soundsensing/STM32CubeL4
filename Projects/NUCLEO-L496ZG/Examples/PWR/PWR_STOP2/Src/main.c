@@ -20,6 +20,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include <stdbool.h>
 
 /** @addtogroup STM32L4xx_HAL_Examples
   * @{
@@ -45,6 +46,10 @@ static void SYSCLKConfig_STOP(void);
   * @param  None
   * @retval None
   */
+
+
+bool led_state = false;
+
 int main(void)
 {
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -64,6 +69,11 @@ int main(void)
   /* Configure LED1, and LED2 */
   BSP_LED_Init(LED1);
   BSP_LED_Init(LED2);
+  BSP_LED_Init(LED3);
+
+  BSP_LED_Off(LED1);
+  BSP_LED_Off(LED2);
+  BSP_LED_Off(LED3);
 
   /* Configure the system clock to 80 MHz */
   SystemClock_Config();
@@ -76,27 +86,41 @@ int main(void)
   
   /* Ensure that MSI is wake-up system clock */ 
   __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
- 
+
+
+	HAL_Delay(1000);
+	BSP_LED_On(LED2);
+	HAL_Delay(5000);
+	BSP_LED_Off(LED2);
+
+	  BSP_LED_Off(LED1);
+	  BSP_LED_Off(LED2);
+	  BSP_LED_Off(LED3);
+
   while (1)
   {
-    /* Insert 5 second delay */
-    HAL_Delay(5000);
+#if 0
+	BSP_LED_Init(LED2);
+	HAL_Delay(100);
+	BSP_LED_On(LED2);
+	HAL_Delay(500);
+	BSP_LED_Off(LED2);
+#endif
 
-
-    /* Turn OFF LED's */
-    BSP_LED_Off(LED1);
-    BSP_LED_Off(LED2);
-
+#if 1
       /* Enable GPIOs clock */
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();        
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOI_CLK_ENABLE();
+#endif
 
+#if 1
   /* Set all GPIO in analog state to reduce power consumption,                */
   /*   except GPIOC to keep user button interrupt enabled                     */
   /* Note: Debug using ST-Link is not possible during the execution of this   */
@@ -107,8 +131,9 @@ int main(void)
   GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStructure.Pull = GPIO_NOPULL;
 
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStructure); 
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+  //HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
+  //HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
   HAL_GPIO_Init(GPIOD, &GPIO_InitStructure); 
   HAL_GPIO_Init(GPIOE, &GPIO_InitStructure);
   HAL_GPIO_Init(GPIOF, &GPIO_InitStructure); 
@@ -117,8 +142,9 @@ int main(void)
   HAL_GPIO_Init(GPIOI, &GPIO_InitStructure);
 
   /* Disable GPIOs clock */
-  __HAL_RCC_GPIOA_CLK_DISABLE();
-  __HAL_RCC_GPIOB_CLK_DISABLE();
+  //__HAL_RCC_GPIOA_CLK_DISABLE();
+  //__HAL_RCC_GPIOB_CLK_DISABLE();
+  __HAL_RCC_GPIOC_CLK_DISABLE();
   __HAL_RCC_GPIOD_CLK_DISABLE();
   __HAL_RCC_GPIOE_CLK_DISABLE();
   __HAL_RCC_GPIOF_CLK_DISABLE();  
@@ -126,16 +152,24 @@ int main(void)
   __HAL_RCC_GPIOH_CLK_DISABLE();
   __HAL_RCC_GPIOI_CLK_DISABLE();
 
+#endif
+
+
+   // disable SysTick while sleeping
+   HAL_SuspendTick();
+
     /* Enter STOP 2 mode */
-    HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI);
+   HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI);
     
    /* ... STOP 2 mode ... */    
 
     /* Re-configure the system clock to 80 MHz based on MSI, enable and
        select PLL as system clock source (PLL is disabled in STOP mode) */
-    SYSCLKConfig_STOP();  
-  
+    SYSCLKConfig_STOP();
+
+    HAL_ResumeTick();
   }
+
 }
 
 /**
@@ -244,7 +278,7 @@ void Error_Handler(void)
   HAL_SuspendTick();
   
   /* Turn LED2 */
-  BSP_LED_On(LED2);
+  BSP_LED_On(LED3);
   while (1)
   {
   }
@@ -266,6 +300,7 @@ void HAL_SYSTICK_Callback(void)
   else
   {
     /* Toggle LED1 */
+	BSP_LED_Init(LED1);
     BSP_LED_Toggle(LED1);
     TimingDelay = LED_TOGGLE_DELAY;
   }
@@ -281,10 +316,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   if (GPIO_Pin == USER_BUTTON_PIN)
   {
-    /* Reconfigure LED1 */
-    BSP_LED_Init(LED1); 
-    /* Switch on LED1 */
-    BSP_LED_On(LED1);
+#if 1
+	BSP_LED_Init(LED2);
+	BSP_LED_Toggle(LED2);
+#endif
   }
 }
 
