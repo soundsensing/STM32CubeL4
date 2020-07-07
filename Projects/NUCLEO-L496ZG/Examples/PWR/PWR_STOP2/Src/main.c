@@ -47,6 +47,17 @@ static void SYSCLKConfig_STOP(void);
   * @retval None
   */
 
+#define QSPI_STANDBY_PORT GPIOB
+#define QSPI_STANDBY_PIN GPIO_PIN_11
+#define QSPI_STANDBY_PORT_CLK_ENABLE()    __HAL_RCC_GPIOB_CLK_ENABLE()
+
+#define CODEC_RESET_PORT GPIOC
+#define CODEC_RESET_PIN GPIO_PIN_6
+#define CODEC_RESET_PORT_CLK_ENABLE()    __HAL_RCC_GPIOC_CLK_ENABLE()
+
+#define SDCARD_ENABLE_PORT GPIOD
+#define SDCARD_ENABLE_PIN GPIO_PIN_0
+#define SDCARD_ENABLE_PORT_CLK_ENABLE()    __HAL_RCC_GPIOD_CLK_ENABLE()
 
 bool led_state = false;
 
@@ -74,6 +85,35 @@ int main(void)
   BSP_LED_Off(LED1);
   BSP_LED_Off(LED2);
   BSP_LED_Off(LED3);
+
+  GPIO_InitTypeDef  GPIO_InitStruct;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+
+  // Set QSPI flash into Standby
+#if 1
+  QSPI_STANDBY_PORT_CLK_ENABLE();
+  GPIO_InitStruct.Pin = QSPI_STANDBY_PIN;
+  HAL_GPIO_Init(QSPI_STANDBY_PORT, &GPIO_InitStruct);
+  HAL_GPIO_WritePin(QSPI_STANDBY_PORT, QSPI_STANDBY_PIN, GPIO_PIN_SET);
+#endif
+
+#if 1
+  // Disable SDCard
+  SDCARD_ENABLE_PORT_CLK_ENABLE();
+  GPIO_InitStruct.Pin = SDCARD_ENABLE_PIN;
+  HAL_GPIO_Init(SDCARD_ENABLE_PORT, &GPIO_InitStruct);
+  HAL_GPIO_WritePin(SDCARD_ENABLE_PORT, SDCARD_ENABLE_PIN, GPIO_PIN_RESET);
+#endif
+
+#if 1
+  // Turn audio codec off
+  CODEC_RESET_PORT_CLK_ENABLE();
+  GPIO_InitStruct.Pin = CODEC_RESET_PIN;
+  HAL_GPIO_Init(CODEC_RESET_PORT, &GPIO_InitStruct);
+  HAL_GPIO_WritePin(CODEC_RESET_PORT, CODEC_RESET_PIN, GPIO_PIN_RESET);
+#endif
 
   /* Configure the system clock to 80 MHz */
   SystemClock_Config();
@@ -107,7 +147,7 @@ int main(void)
 	BSP_LED_Off(LED2);
 #endif
 
-#if 1
+#if 0
       /* Enable GPIOs clock */
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
@@ -120,7 +160,7 @@ int main(void)
   __HAL_RCC_GPIOI_CLK_ENABLE();
 #endif
 
-#if 1
+#if 0
   /* Set all GPIO in analog state to reduce power consumption,                */
   /*   except GPIOC to keep user button interrupt enabled                     */
   /* Note: Debug using ST-Link is not possible during the execution of this   */
