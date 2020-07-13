@@ -113,6 +113,8 @@ b) RECORD A FILE:
 #include <string.h>
 #include "stm32l496g_discovery_audio.h"
 
+#include <stdbool.h>
+
 /** @addtogroup BSP
   * @{
   */
@@ -781,6 +783,12 @@ uint8_t BSP_AUDIO_IN_Init(uint32_t AudioFreq, uint32_t BitRes, uint32_t ChnlNbr)
   */
 uint8_t BSP_AUDIO_IN_InitEx(uint16_t InputDevice, uint32_t AudioFreq, uint32_t BitRes, uint32_t ChnlNbr)
 {
+  static bool audio_initialized = false;
+
+  if (audio_initialized) {
+    return AUDIO_OK;
+  }
+
   /* Update the audio input context */
   hAudioIn.AudioDrv           = &cs42l51_drv;
   hAudioIn.InputDevice        = InputDevice;
@@ -857,6 +865,7 @@ uint8_t BSP_AUDIO_IN_InitEx(uint16_t InputDevice, uint32_t AudioFreq, uint32_t B
   DmaRightRecHalfBuffCplt = 0;
   DmaRightRecBuffCplt     = 0;
 
+  audio_initialized = true;
   return AUDIO_OK;
 }
 

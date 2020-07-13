@@ -358,11 +358,13 @@ AUDIO_RECORDER_ErrorTypdef  AUDIO_RECORDER_StopRec(void)
     Error_Handler();
   }
   
+#if 0
   if(BSP_AUDIO_IN_DeInit() == AUDIO_ERROR)
   {
     Error_Handler();
   }
-  
+#endif  
+
 //  /* Configure SD IT pin */
 //  BSP_SD_Init();    
 //  
