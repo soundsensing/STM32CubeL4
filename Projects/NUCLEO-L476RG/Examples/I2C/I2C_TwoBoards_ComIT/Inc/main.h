@@ -54,14 +54,6 @@
 #define I2Cx_EV_IRQHandler              I2C3_EV_IRQHandler
 #define I2Cx_ER_IRQHandler              I2C3_ER_IRQHandler
 
-/* Size of Transmission buffer */
-#define TXBUFFERSIZE                      (COUNTOF(aTxBuffer) - 1)
-/* Size of Reception buffer */
-#define RXBUFFERSIZE                      TXBUFFERSIZE
-
-/* Exported macro ------------------------------------------------------------*/
-#define COUNTOF(__BUFFER__)   (sizeof(__BUFFER__) / sizeof(*(__BUFFER__)))
-/* Exported functions ------------------------------------------------------- */
 
 #endif /* __MAIN_H */
 

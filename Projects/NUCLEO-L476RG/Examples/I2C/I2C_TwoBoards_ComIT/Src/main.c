@@ -23,6 +23,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
+#include <stdbool.h>
+#include <stdio.h>
+
 /** @addtogroup STM32L4xx_HAL_Examples
   * @{
   */
@@ -35,7 +38,7 @@
 /* Private define ------------------------------------------------------------*/
 /* Uncomment this line to use the board as master, if not it is used as slave */
 //#define MASTER_BOARD
-#define I2C_ADDRESS        0x30F
+#define I2C_ADDRESS        0x30 << 1
 
 /* I2C TIMING Register define when I2C clock source is SYSCLK */
 /* I2C TIMING is calculated in case of the I2C Clock source is the SYSCLK = 80 MHz */
@@ -49,9 +52,11 @@ I2C_HandleTypeDef I2cHandle;
 
 
 /* Buffer used for transmission */
-uint8_t aTxBuffer[] = " ****I2C_TwoBoards communication based on IT****  ****I2C_TwoBoards communication based on IT****  ****I2C_TwoBoards communication based on IT**** ";
+uint8_t aTxBuffer[] = { 1, 44 };
+#define TXBUFFERSIZE 2
 
 /* Buffer used for reception */
+#define RXBUFFERSIZE 2
 uint8_t aRxBuffer[RXBUFFERSIZE];
 
 /* Private function prototypes -----------------------------------------------*/
@@ -60,6 +65,38 @@ static uint16_t Buffercmp(uint8_t* pBuffer1, uint8_t* pBuffer2, uint16_t BufferL
 static void Error_Handler(void);
 
 /* Private functions ---------------------------------------------------------*/
+
+typedef struct _VersionInfo {
+	uint8_t major;
+	uint8_t minor;
+	uint8_t patch;
+	uint8_t commit;
+	char sha[9];
+} VersionInfo;
+
+#define FIRMWARE_VERSION "1.3.2-4-gd47dc36"
+
+
+/* Parse a git version as output by
+ * git describe --tag --always --long --abbrev=8
+ * */
+bool version_info_parse(VersionInfo *info, const char *str) {
+
+	int major, minor, patch, commit;
+
+	const int tok = sscanf(str, "%d.%d.%d-%d-%8s",
+			&major, &minor, &patch, &commit, info->sha);
+	if (tok != 5) {
+		return false;
+	}
+	info->major = major;
+	info->minor = minor;
+	info->patch = patch;
+	info->commit = commit;
+	return true;
+}
+
+
 
 /**
   * @brief  Main program
@@ -84,18 +121,25 @@ int main(void)
   SystemClock_Config();
 
   /* Configure LED2 */
-  BSP_LED_Init(LED2);
+  //BSP_LED_Init(LED2);
 
   /*##-1- Configure the I2C peripheral ######################################*/
   I2cHandle.Instance             = I2Cx;
   I2cHandle.Init.Timing          = I2C_TIMING;
   I2cHandle.Init.OwnAddress1     = I2C_ADDRESS;
-  I2cHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_10BIT;
+  I2cHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
   I2cHandle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
   I2cHandle.Init.OwnAddress2     = 0xFF;
   I2cHandle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
   I2cHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;  
   
+  VersionInfo version;
+  const bool version_ok = version_info_parse(&version, FIRMWARE_VERSION);
+
+  if (!version_ok) {
+	  Error_Handler();
+  }
+
   if(HAL_I2C_Init(&I2cHandle) != HAL_OK)
   {
     /* Initialization Error */
@@ -105,145 +149,68 @@ int main(void)
   /* Enable the Analog I2C Filter */
   HAL_I2CEx_ConfigAnalogFilter(&I2cHandle,I2C_ANALOGFILTER_ENABLE);
 
-#ifdef MASTER_BOARD
   
-  /* Configure User push-button */
-  BSP_PB_Init(BUTTON_USER,BUTTON_MODE_GPIO);
-
-  /* Wait for User push-button press before starting the Communication */
-  while (BSP_PB_GetState(BUTTON_USER) != GPIO_PIN_RESET)
-  {
-  }
-  
-  /* Delay to avoid that possible signal rebound is taken as button release */
-  HAL_Delay(50);
-  
-  /* Wait for User push-button release before starting the Communication */
-  while (BSP_PB_GetState(BUTTON_USER) != GPIO_PIN_SET)
-  {
-  }
-  
-  /* The board sends the message and expects to receive it back */
-  
-  /*##-2- Start the transmission process #####################################*/  
-  /* While the I2C in reception process, user can transmit data through 
-     "aTxBuffer" buffer */
-  do
-  {
-    if(HAL_I2C_Master_Transmit_IT(&I2cHandle, (uint16_t)I2C_ADDRESS, (uint8_t*)aTxBuffer, TXBUFFERSIZE)!= HAL_OK)
-    {
-      /* Error_Handler() function is called when error occurs. */
-      Error_Handler();
-    }
-
-    /*##-3- Wait for the end of the transfer #################################*/  
-    /*  Before starting a new communication transfer, you need to check the current   
-        state of the peripheral; if it’s busy you need to wait for the end of current
-        transfer before starting a new one.
-        For simplicity reasons, this example is just waiting till the end of the 
-        transfer, but application may perform other tasks while transfer operation
-        is ongoing. */  
-    while (HAL_I2C_GetState(&I2cHandle) != HAL_I2C_STATE_READY)
-    {
-    } 
-
-    /* When Acknowledge failure occurs (Slave don't acknowledge it's address)
-       Master restarts communication */
-  }
-  while(HAL_I2C_GetError(&I2cHandle) == HAL_I2C_ERROR_AF);
-
-  /* Wait for User push-button press before starting the Communication */
-  while (BSP_PB_GetState(BUTTON_USER) != GPIO_PIN_RESET)
-  {
-  }
-
-  /* Delay to avoid that possible signal rebound is taken as button release */
-  HAL_Delay(50);
-  
-  /* Wait for User push-button release before starting the Communication */
-  while (BSP_PB_GetState(BUTTON_USER) != GPIO_PIN_SET)
-  {
-  }
-
-  /*##-4- Put I2C peripheral in reception process ###########################*/  
-  do
-  {
-    if(HAL_I2C_Master_Receive_IT(&I2cHandle, (uint16_t)I2C_ADDRESS, (uint8_t *)aRxBuffer, RXBUFFERSIZE) != HAL_OK)
-    {
-      /* Error_Handler() function is called when error occurs. */
-      Error_Handler();
-    }
-
-    /*##-5- Wait for the end of the transfer #################################*/  
-    /*  Before starting a new communication transfer, you need to check the current   
-        state of the peripheral; if it’s busy you need to wait for the end of current
-        transfer before starting a new one.
-        For simplicity reasons, this example is just waiting till the end of the 
-        transfer, but application may perform other tasks while transfer operation
-        is ongoing. */  
-    while (HAL_I2C_GetState(&I2cHandle) != HAL_I2C_STATE_READY)
-    {
-    } 
-
-    /* When Acknowledge failure occurs (Slave don't acknowledge it's address)
-       Master restarts communication */
-  }
-  while(HAL_I2C_GetError(&I2cHandle) == HAL_I2C_ERROR_AF);
-
-#else
-  
-  /* The board receives the message and sends it back */
-
-  /*##-2- Put I2C peripheral in reception process ###########################*/  
-  if(HAL_I2C_Slave_Receive_IT(&I2cHandle, (uint8_t *)aRxBuffer, RXBUFFERSIZE) != HAL_OK)
-  {
-    /* Transfer error in reception process */
-    Error_Handler();
-  }
-  
-  /*##-3- Wait for the end of the transfer ###################################*/  
-  /*  Before starting a new communication transfer, you need to check the current   
-      state of the peripheral; if it’s busy you need to wait for the end of current
-      transfer before starting a new one.
-      For simplicity reasons, this example is just waiting till the end of the
-      transfer, but application may perform other tasks while transfer operation
-      is ongoing. */
-  while (HAL_I2C_GetState(&I2cHandle) != HAL_I2C_STATE_READY)
-  {
-  }
-  
-  /*##-4- Start the transmission process #####################################*/  
-  /* While the I2C in reception process, user can transmit data through 
-     "aTxBuffer" buffer */
-  if(HAL_I2C_Slave_Transmit_IT(&I2cHandle, (uint8_t*)aTxBuffer, TXBUFFERSIZE)!= HAL_OK)
-  {
-    /* Transfer error in transmission process */
-    Error_Handler();    
-  }
-  
-#endif /* MASTER_BOARD */
-
-  /*##-5- Wait for the end of the transfer ###################################*/  
-  /*  Before starting a new communication transfer, you need to check the current   
-      state of the peripheral; if it’s busy you need to wait for the end of current
-      transfer before starting a new one.
-      For simplicity reasons, this example is just waiting till the end of the
-      transfer, but application may perform other tasks while transfer operation
-      is ongoing. */
-  while (HAL_I2C_GetState(&I2cHandle) != HAL_I2C_STATE_READY)
-  {
-  } 
-  
-  /*##-6- Compare the sent and received buffers ##############################*/
-  if(Buffercmp((uint8_t*)aTxBuffer,(uint8_t*)aRxBuffer,RXBUFFERSIZE))
-  {
-    /* Processing Error */
-    Error_Handler();      
-  }
- 
   /* Infinite loop */  
   while (1)
   {
+	  /* The board receives the message and sends it back */
+
+	   /*##-2- Put I2C peripheral in reception process ###########################*/
+	   if(HAL_I2C_Slave_Receive_IT(&I2cHandle, (uint8_t *)aRxBuffer, RXBUFFERSIZE) != HAL_OK)
+	   {
+	     /* Transfer error in reception process */
+	     Error_Handler();
+	   }
+
+	   /*##-3- Wait for the end of the transfer ###################################*/
+	   /*  Before starting a new communication transfer, you need to check the current
+	       state of the peripheral; if itï¿½s busy you need to wait for the end of current
+	       transfer before starting a new one.
+	       For simplicity reasons, this example is just waiting till the end of the
+	       transfer, but application may perform other tasks while transfer operation
+	       is ongoing. */
+	   while (HAL_I2C_GetState(&I2cHandle) != HAL_I2C_STATE_READY)
+	   {
+	   }
+
+	   /*##-4- Start the transmission process #####################################*/
+	   /* While the I2C in reception process, user can transmit data through
+	      "aTxBuffer" buffer */
+
+	   aTxBuffer[0] = aRxBuffer[0];
+	   if (aRxBuffer[0] == 0x02) {
+		   // Product ID
+		   aTxBuffer[1] = 0x88;
+	   } else if (aRxBuffer[0] == 0x03) {
+		   // Portocol version
+		   aTxBuffer[1] = 0x10;
+	   } else if (aRxBuffer[0] == 0x04) {
+		   // Firmware
+		   aTxBuffer[1] = version.major;
+	   } else if (aRxBuffer[0] == 0x05) {
+		   aTxBuffer[1] = version.minor;
+	   } else if (aRxBuffer[0] == 0x06) {
+		   aTxBuffer[1] = version.patch;
+	   } else if (aRxBuffer[0] == 0x07) {
+		   aTxBuffer[1] = version.commit;
+	   }
+
+	   if(HAL_I2C_Slave_Transmit_IT(&I2cHandle, (uint8_t*)aTxBuffer, TXBUFFERSIZE)!= HAL_OK)
+	   {
+	     /* Transfer error in transmission process */
+	     Error_Handler();
+	   }
+
+	   /*##-5- Wait for the end of the transfer ###################################*/
+	   /*  Before starting a new communication transfer, you need to check the current
+	       state of the peripheral; if itï¿½s busy you need to wait for the end of current
+	       transfer before starting a new one.
+	       For simplicity reasons, this example is just waiting till the end of the
+	       transfer, but application may perform other tasks while transfer operation
+	       is ongoing. */
+	   while (HAL_I2C_GetState(&I2cHandle) != HAL_I2C_STATE_READY)
+	   {
+	   }
   }
 }
 
@@ -310,40 +277,19 @@ void SystemClock_Config(void)
   *         you can add your own implementation. 
   * @retval None
   */
-#ifdef MASTER_BOARD
-void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *I2cHandle)
-{
-  /* Toggle LED2: Transfer in transmission process is correct */
-  BSP_LED_Toggle(LED2);
-}
-#else
+
 void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *I2cHandle)
 {
   /* Toggle LED2: Transfer in transmission process is correct */
-  BSP_LED_Toggle(LED2);
+  //BSP_LED_Toggle(LED2);
 }
-#endif /* MASTER_BOARD */
 
-/**
-  * @brief  Rx Transfer completed callback.
-  * @param  I2cHandle: I2C handle
-  * @note   This example shows a simple way to report end of IT Rx transfer, and 
-  *         you can add your own implementation.
-  * @retval None
-  */
-#ifdef MASTER_BOARD
-void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *I2cHandle)
-{
-  /* Toggle LED2: Transfer in reception process is correct */
-  BSP_LED_Toggle(LED2);
-}
-#else
+
 void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *I2cHandle)
 {
   /* Toggle LED2: Transfer in reception process is correct */
-  BSP_LED_Toggle(LED2);
+  //BSP_LED_Toggle(LED2);
 }
-#endif /* MASTER_BOARD */
 
 /**
   * @brief  I2C error callbacks.
@@ -374,7 +320,7 @@ static void Error_Handler(void)
   /* LED2 is slowly blinking (1 sec. period) */
   while(1)
   {    
-    BSP_LED_Toggle(LED2); 
+    //BSP_LED_Toggle(LED2);
     HAL_Delay(1000);
   } 
 }
