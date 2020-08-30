@@ -96,7 +96,7 @@ typedef enum
 /* Exported functions ------------------------------------------------------- */
 AUDIO_RECORDER_ErrorTypdef  AUDIO_RECORDER_Init(void);
 AUDIO_RECORDER_ErrorTypdef  AUDIO_RECORDER_DeInit(void);
-AUDIO_RECORDER_ErrorTypdef  AUDIO_RECORDER_StartRec(uint32_t headSetSelected);
+AUDIO_RECORDER_ErrorTypdef  AUDIO_RECORDER_StartRec();
 AUDIO_RECORDER_ErrorTypdef  AUDIO_RECORDER_PauseResume(void);
 AUDIO_RECORDER_ErrorTypdef  AUDIO_RECORDER_StopRec(void);
 AUDIO_RECORDER_ErrorTypdef  AUDIO_RECORDER_StartPlay(void);
@@ -108,6 +108,12 @@ AUDIO_RECORDER_StateTypdef  AUDIO_RECORDER_GetState(void);
 uint32_t                    AUDIO_RECORDER_GetPlayedTime(void);
 uint32_t                    AUDIO_RECORDER_GetTotalTime(void);
 void                        AUDIO_RECORDER_RemoveAudioFile(char const*fname);
+
+
+void AUDIO_RECORDER_TransferComplete_CallBack(void);
+void AUDIO_RECORDER_HalfTransfer_CallBack(void);
+void AUDIO_RECORDER_Error_CallBack(void);
+
 
 #ifdef __cplusplus
 }

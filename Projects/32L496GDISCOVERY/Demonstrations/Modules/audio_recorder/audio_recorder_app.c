@@ -60,8 +60,6 @@ static uint32_t WavProcess_HeaderUpdate(uint8_t* pHeader, WAV_InfoTypedef* pAudi
 static void AUDIO_TransferComplete_CallBack(void);
 static void AUDIO_HalfTransfer_CallBack(void);
 static void AUDIO_Error_CallBack(void);
-static void BSP_AUDIO_IN_TransferComplete_CallBack(void);
-static void BSP_AUDIO_IN_HalfTransfer_CallBack(void);
 
 extern void _cbNotifyStateChange (void) ;
 
@@ -110,26 +108,9 @@ uint32_t  AUDIO_RECORDER_GetVolume(void)
   * @param  frequency: Audio frequency used to record the audio stream.
   * @retval Audio state.
   */
-AUDIO_RECORDER_ErrorTypdef  AUDIO_RECORDER_StartRec(uint32_t headSetSelected)
+AUDIO_RECORDER_ErrorTypdef  AUDIO_RECORDER_StartRec()
 {
   uint32_t byteswritten = 0;
-  uint32_t device;
-  
-  if (headSetSelected)
-  {
-    device = INPUT_DEVICE_ANALOG_MIC;
-    haudio.in.freq = HEADSET_MIC_FREQ;
-    haudio.in.nbChannel = HEADSET_MIC_NBR_CHANNEL;
-    haudio.in.volume = HEADSET_MIC_VOLUME;  
-
-  }
-  else
-  {
-    device = INPUT_DEVICE_DIGITAL_MIC;
-    haudio.in.freq = DIGITAL_MIC_FREQ;
-    haudio.in.nbChannel = DIGITAL_MIC_NBR_CHANNEL;
-    haudio.in.volume = DIGITAL_MIC_VOLUME;  
-  }
   
   /* Initialize header file */
   WavProcess_EncInit(pHeaderBuff);
@@ -139,21 +120,7 @@ AUDIO_RECORDER_ErrorTypdef  AUDIO_RECORDER_StartRec(uint32_t headSetSelected)
   {
     if(byteswritten != 0)
     {      
-      if(BSP_AUDIO_IN_InitEx(device, haudio.in.freq, AUDIO_REC_BIT_RESOLUTION, haudio.in.nbChannel) == AUDIO_ERROR)
-      {
-        Error_Handler();
-      }
-      
-      /* Register audio BSP drivers callbacks */
-      BSP_AUDIO_IN_RegisterCallbacks(AUDIO_Error_CallBack,
-                                     BSP_AUDIO_IN_HalfTransfer_CallBack, 
-                                     BSP_AUDIO_IN_TransferComplete_CallBack);
-      
-      if(BSP_AUDIO_IN_Record((uint16_t*)&haudio.buff[0], AUDIO_IN_BUFFER_SIZE_HALF_WORD) == AUDIO_ERROR)
-      {
-        Error_Handler();
-      }
-      
+
       if(haudio.in.state == AUDIO_RECORDER_SUSPENDED)
       {
         osThreadResume(AudioThreadId);
@@ -521,7 +488,7 @@ AUDIO_RECORDER_ErrorTypdef  AUDIO_RECORDER_Resume(void)
   * @param  None
   * @retval None
   */
-static void BSP_AUDIO_IN_TransferComplete_CallBack(void)
+void AUDIO_RECORDER_TransferComplete_CallBack(void)
 {
 #ifdef DEBUG_AUDIO_APP
   if(osMessagePut(AudioEvent, REC_BUFFER_OFFSET_FULL, 0) != osOK){
@@ -540,7 +507,7 @@ static void BSP_AUDIO_IN_TransferComplete_CallBack(void)
   * @param  None
   * @retval None
   */
-static void BSP_AUDIO_IN_HalfTransfer_CallBack(void)
+void AUDIO_RECORDER_HalfTransfer_CallBack(void)
 { 
 #ifdef DEBUG_AUDIO_APP
   if (osMessagePut(AudioEvent, REC_BUFFER_OFFSET_HALF, 0) != osOK)
@@ -558,7 +525,7 @@ static void BSP_AUDIO_IN_HalfTransfer_CallBack(void)
   * @param  None
   * @retval None
   */
-void BSP_AUDIO_IN_Error_CallBack(void)
+void AUDIO_RECORDER_Error_CallBack(void)
 {
   haudio.in.state = AUDIO_RECORDER_ERROR;
 }
