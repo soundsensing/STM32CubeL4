@@ -658,6 +658,8 @@ uint8_t BSP_QSPI_ResumeErase(void)
   */
 uint8_t BSP_QSPI_EnterDeepPowerDown(void)
 {
+  /* Must drive S# high after sending command */
+
   QSPI_CommandTypeDef sCommand;
 
   /* Initialize the deep power down command */
@@ -689,11 +691,14 @@ uint8_t BSP_QSPI_EnterDeepPowerDown(void)
   */
 uint8_t BSP_QSPI_LeaveDeepPowerDown(void)
 {
+    /* NOTE: Must drive S# low before sending command, and then drive S# high after  */
+
+
   QSPI_CommandTypeDef sCommand;
 
   /* Initialize the erase command */
   sCommand.InstructionMode   = QSPI_INSTRUCTION_1_LINE;
-  sCommand.Instruction       = NO_OPERATION_CMD;
+  sCommand.Instruction       = DEEP_POWER_DOWN_RELEASE_CMD;
   sCommand.AddressMode       = QSPI_ADDRESS_NONE;
   sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
   sCommand.DataMode          = QSPI_DATA_NONE;
@@ -707,9 +712,6 @@ uint8_t BSP_QSPI_LeaveDeepPowerDown(void)
   {
     return QSPI_ERROR;
   }
-
-  /* --- A NOP command is sent to the memory, as the nCS should be low for at least 20 ns --- */
-  /* ---                  Memory takes 35us min to leave deep power down                  --- */
 
   return QSPI_OK;
 }
