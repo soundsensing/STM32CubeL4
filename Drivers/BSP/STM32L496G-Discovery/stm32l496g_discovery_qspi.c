@@ -2,17 +2,17 @@
   ******************************************************************************
   * @file    stm32l496g_discovery_qspi.c
   * @author  MCD Application Team
-  * @brief   This file includes a standard driver for the MX25R6435F QSPI
+  * @brief   This file includes a standard driver for the MT25QU128 QSPI
   *          memory mounted on STM32L496G-Discovery board.
   @verbatim
   ==============================================================================
                      ##### How to use this driver #####
   ==============================================================================
   [..]
-   (#) This driver is used to drive the MX25R6435F QSPI external
+   (#) This driver is used to drive the MT25QU128 QSPI external
        memory mounted on STM32L496G-DISCO evaluation board.
 
-   (#) This driver need a specific component driver (MX25R6435F) to be included with.
+   (#) This driver need a specific component driver (MT25QU128) to be included with.
 
    (#) Initialization steps:
        (++) Initialize the QPSI external memory using the BSP_QSPI_Init() function. This
@@ -139,7 +139,7 @@ uint8_t BSP_QSPI_Init(void)
   QSPIHandle.Init.ClockPrescaler     = 2; /* QSPI clock = 80MHz / (ClockPrescaler+1) = 26.67MHz */
   QSPIHandle.Init.FifoThreshold      = 4;
   QSPIHandle.Init.SampleShifting     = QSPI_SAMPLE_SHIFTING_HALFCYCLE;
-  QSPIHandle.Init.FlashSize          = POSITION_VAL(MX25R6435F_FLASH_SIZE) - 1;
+  QSPIHandle.Init.FlashSize          = POSITION_VAL(MT25QU128_FLASH_SIZE) - 1;
   QSPIHandle.Init.ChipSelectHighTime = QSPI_CS_HIGH_TIME_1_CYCLE;
   QSPIHandle.Init.ClockMode          = QSPI_CLOCK_MODE_0;
 
@@ -216,9 +216,9 @@ uint8_t BSP_QSPI_Read(uint8_t *pData, uint32_t ReadAddr, uint32_t Size)
   sCommand.Address            = ReadAddr;
   sCommand.AlternateByteMode  = QSPI_ALTERNATE_BYTES_4_LINES;
   sCommand.AlternateBytesSize = QSPI_ALTERNATE_BYTES_8_BITS;
-  sCommand.AlternateBytes     = MX25R6435F_ALT_BYTES_NO_PE_MODE;
+  sCommand.AlternateBytes     = MT25QU128_ALT_BYTES_NO_PE_MODE;
   sCommand.DataMode           = QSPI_DATA_4_LINES;
-  sCommand.DummyCycles        = MX25R6435F_DUMMY_CYCLES_READ_QUAD;
+  sCommand.DummyCycles        = MT25QU128_DUMMY_CYCLES_READ_QUAD;
   sCommand.NbData             = Size;
   sCommand.DdrMode            = QSPI_DDR_MODE_DISABLE;
   sCommand.DdrHoldHalfCycle   = QSPI_DDR_HHC_ANALOG_DELAY;
@@ -252,7 +252,7 @@ uint8_t BSP_QSPI_Write(uint8_t *pData, uint32_t WriteAddr, uint32_t Size)
   uint32_t end_addr, current_size, current_addr;
 
   /* Calculation of the size between the write address and the end of the page */
-  current_size = MX25R6435F_PAGE_SIZE - (WriteAddr % MX25R6435F_PAGE_SIZE);
+  current_size = MT25QU128_PAGE_SIZE - (WriteAddr % MT25QU128_PAGE_SIZE);
 
   /* Check if the size of the data is less than the remaining place in the page */
   if (current_size > Size)
@@ -309,7 +309,7 @@ uint8_t BSP_QSPI_Write(uint8_t *pData, uint32_t WriteAddr, uint32_t Size)
     /* Update the address and size variables for next page programming */
     current_addr += current_size;
     pData += current_size;
-    current_size = ((current_addr + MX25R6435F_PAGE_SIZE) > end_addr) ? (end_addr - current_addr) : MX25R6435F_PAGE_SIZE;
+    current_size = ((current_addr + MT25QU128_PAGE_SIZE) > end_addr) ? (end_addr - current_addr) : MT25QU128_PAGE_SIZE;
   }
   while (current_addr < end_addr);
 
@@ -351,7 +351,7 @@ uint8_t BSP_QSPI_Erase_Block(uint32_t BlockAddress)
   }
 
   /* Configure automatic polling mode to wait for end of erase */
-  if (QSPI_AutoPollingMemReady(&QSPIHandle, MX25R6435F_BLOCK_ERASE_MAX_TIME) != QSPI_OK)
+  if (QSPI_AutoPollingMemReady(&QSPIHandle, MT25QU128_BLOCK_ERASE_MAX_TIME) != QSPI_OK)
   {
     return QSPI_ERROR;
   }
@@ -373,7 +373,7 @@ uint8_t BSP_QSPI_Erase_Sector(uint32_t Sector)
 {
   QSPI_CommandTypeDef sCommand;
 
-  if (Sector >= (uint32_t)(MX25R6435F_FLASH_SIZE / MX25R6435F_SECTOR_SIZE))
+  if (Sector >= (uint32_t)(MT25QU128_FLASH_SIZE / MT25QU128_SECTOR_SIZE))
   {
     return QSPI_ERROR;
   }
@@ -383,7 +383,7 @@ uint8_t BSP_QSPI_Erase_Sector(uint32_t Sector)
   sCommand.Instruction       = SECTOR_ERASE_CMD;
   sCommand.AddressMode       = QSPI_ADDRESS_1_LINE;
   sCommand.AddressSize       = QSPI_ADDRESS_24_BITS;
-  sCommand.Address           = (Sector * MX25R6435F_SECTOR_SIZE);
+  sCommand.Address           = (Sector * MT25QU128_SECTOR_SIZE);
   sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
   sCommand.DataMode          = QSPI_DATA_NONE;
   sCommand.DummyCycles       = 0;
@@ -438,7 +438,7 @@ uint8_t BSP_QSPI_Erase_Chip(void)
   }
 
   /* Configure automatic polling mode to wait for end of erase */
-  if (QSPI_AutoPollingMemReady(&QSPIHandle, MX25R6435F_CHIP_ERASE_MAX_TIME) != QSPI_OK)
+  if (QSPI_AutoPollingMemReady(&QSPIHandle, MT25QU128_CHIP_ERASE_MAX_TIME) != QSPI_OK)
   {
     return QSPI_ERROR;
   }
@@ -480,11 +480,11 @@ uint8_t BSP_QSPI_GetStatus(void)
   }
 
   /* Check the value of the register */
-  if ((reg & (MX25R6435F_SECR_P_FAIL | MX25R6435F_SECR_E_FAIL)) != 0)
+  if ((reg & (MT25QU128_SECR_P_FAIL | MT25QU128_SECR_E_FAIL)) != 0)
   {
     return QSPI_ERROR;
   }
-  else if ((reg & (MX25R6435F_SECR_PSB | MX25R6435F_SECR_ESB)) != 0)
+  else if ((reg & (MT25QU128_SECR_PSB | MT25QU128_SECR_ESB)) != 0)
   {
     return QSPI_SUSPENDED;
   }
@@ -505,7 +505,7 @@ uint8_t BSP_QSPI_GetStatus(void)
   }
 
   /* Check the value of the register */
-  if ((reg & MX25R6435F_SR_WIP) != 0)
+  if ((reg & MT25QU128_SR_WIP) != 0)
   {
     return QSPI_BUSY;
   }
@@ -523,11 +523,11 @@ uint8_t BSP_QSPI_GetStatus(void)
 uint8_t BSP_QSPI_GetInfo(QSPI_Info *pInfo)
 {
   /* Configure the structure with the memory configuration */
-  pInfo->FlashSize          = MX25R6435F_FLASH_SIZE;
-  pInfo->EraseSectorSize    = MX25R6435F_SECTOR_SIZE;
-  pInfo->EraseSectorsNumber = (MX25R6435F_FLASH_SIZE / MX25R6435F_SECTOR_SIZE);
-  pInfo->ProgPageSize       = MX25R6435F_PAGE_SIZE;
-  pInfo->ProgPagesNumber    = (MX25R6435F_FLASH_SIZE / MX25R6435F_PAGE_SIZE);
+  pInfo->FlashSize          = MT25QU128_FLASH_SIZE;
+  pInfo->EraseSectorSize    = MT25QU128_SECTOR_SIZE;
+  pInfo->EraseSectorsNumber = (MT25QU128_FLASH_SIZE / MT25QU128_SECTOR_SIZE);
+  pInfo->ProgPageSize       = MT25QU128_PAGE_SIZE;
+  pInfo->ProgPagesNumber    = (MT25QU128_FLASH_SIZE / MT25QU128_PAGE_SIZE);
 
   return QSPI_OK;
 }
@@ -548,9 +548,9 @@ uint8_t BSP_QSPI_EnableMemoryMappedMode(void)
   sCommand.AddressSize        = QSPI_ADDRESS_24_BITS;
   sCommand.AlternateByteMode  = QSPI_ALTERNATE_BYTES_4_LINES;
   sCommand.AlternateBytesSize = QSPI_ALTERNATE_BYTES_8_BITS;
-  sCommand.AlternateBytes     = MX25R6435F_ALT_BYTES_NO_PE_MODE;
+  sCommand.AlternateBytes     = MT25QU128_ALT_BYTES_NO_PE_MODE;
   sCommand.DataMode           = QSPI_DATA_4_LINES;
-  sCommand.DummyCycles        = MX25R6435F_DUMMY_CYCLES_READ_QUAD;
+  sCommand.DummyCycles        = MT25QU128_DUMMY_CYCLES_READ_QUAD;
   sCommand.DdrMode            = QSPI_DDR_MODE_DISABLE;
   sCommand.DdrHoldHalfCycle   = QSPI_DDR_HHC_ANALOG_DELAY;
   sCommand.SIOOMode           = QSPI_SIOO_INST_EVERY_CMD;
@@ -864,8 +864,8 @@ static uint8_t QSPI_WriteEnable(QSPI_HandleTypeDef *hqspi)
   }
 
   /* Configure automatic polling mode to wait for write enabling */
-  sConfig.Match           = MX25R6435F_SR_WEL;
-  sConfig.Mask            = MX25R6435F_SR_WEL;
+  sConfig.Match           = MT25QU128_SR_WEL;
+  sConfig.Mask            = MT25QU128_SR_WEL;
   sConfig.MatchMode       = QSPI_MATCH_MODE_AND;
   sConfig.StatusBytesSize = 1;
   sConfig.Interval        = 0x10;
@@ -905,7 +905,7 @@ static uint8_t QSPI_AutoPollingMemReady(QSPI_HandleTypeDef *hqspi, uint32_t Time
   sCommand.SIOOMode          = QSPI_SIOO_INST_EVERY_CMD;
 
   sConfig.Match           = 0;
-  sConfig.Mask            = MX25R6435F_SR_WIP;
+  sConfig.Mask            = MT25QU128_SR_WIP;
   sConfig.MatchMode       = QSPI_MATCH_MODE_AND;
   sConfig.StatusBytesSize = 1;
   sConfig.Interval        = 0x10;
@@ -961,11 +961,11 @@ static uint8_t QSPI_QuadMode(QSPI_HandleTypeDef *hqspi, uint8_t Operation)
   /* Activate/deactivate the Quad mode */
   if (Operation == QSPI_QUAD_ENABLE)
   {
-    SET_BIT(reg, MX25R6435F_SR_QE);
+    SET_BIT(reg, MT25QU128_SR_QE);
   }
   else
   {
-    CLEAR_BIT(reg, MX25R6435F_SR_QE);
+    CLEAR_BIT(reg, MT25QU128_SR_QE);
   }
 
   sCommand.Instruction = WRITE_STATUS_CFG_REG_CMD;
@@ -999,8 +999,8 @@ static uint8_t QSPI_QuadMode(QSPI_HandleTypeDef *hqspi, uint8_t Operation)
     return QSPI_ERROR;
   }
 
-  if ((((reg & MX25R6435F_SR_QE) == 0) && (Operation == QSPI_QUAD_ENABLE)) ||
-      (((reg & MX25R6435F_SR_QE) != 0) && (Operation == QSPI_QUAD_DISABLE)))
+  if ((((reg & MT25QU128_SR_QE) == 0) && (Operation == QSPI_QUAD_ENABLE)) ||
+      (((reg & MT25QU128_SR_QE) != 0) && (Operation == QSPI_QUAD_DISABLE)))
   {
     return QSPI_ERROR;
   }
@@ -1064,11 +1064,11 @@ static uint8_t QSPI_HighPerfMode(QSPI_HandleTypeDef *hqspi, uint8_t Operation)
   /* Activate/deactivate the Quad mode */
   if (Operation == QSPI_HIGH_PERF_ENABLE)
   {
-    SET_BIT(reg[2], MX25R6435F_CR2_LH_SWITCH);
+    SET_BIT(reg[2], MT25QU128_CR2_LH_SWITCH);
   }
   else
   {
-    CLEAR_BIT(reg[2], MX25R6435F_CR2_LH_SWITCH);
+    CLEAR_BIT(reg[2], MT25QU128_CR2_LH_SWITCH);
   }
 
   sCommand.Instruction = WRITE_STATUS_CFG_REG_CMD;
@@ -1104,8 +1104,8 @@ static uint8_t QSPI_HighPerfMode(QSPI_HandleTypeDef *hqspi, uint8_t Operation)
     return QSPI_ERROR;
   }
 
-  if ((((reg[1] & MX25R6435F_CR2_LH_SWITCH) == 0) && (Operation == QSPI_HIGH_PERF_ENABLE)) ||
-      (((reg[1] & MX25R6435F_CR2_LH_SWITCH) != 0) && (Operation == QSPI_HIGH_PERF_DISABLE)))
+  if ((((reg[1] & MT25QU128_CR2_LH_SWITCH) == 0) && (Operation == QSPI_HIGH_PERF_ENABLE)) ||
+      (((reg[1] & MT25QU128_CR2_LH_SWITCH) != 0) && (Operation == QSPI_HIGH_PERF_DISABLE)))
   {
     return QSPI_ERROR;
   }

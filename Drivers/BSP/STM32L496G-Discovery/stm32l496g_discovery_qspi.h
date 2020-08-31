@@ -28,7 +28,7 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal.h"
-#include "../Components/mx25r6435f/mx25r6435f.h"
+#include "../Components/mt25qu128/mt25qu128.h"
 
 /** @addtogroup BSP
   * @{
