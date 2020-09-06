@@ -156,8 +156,8 @@ uint32_t cs42l51_Init(uint16_t DeviceAddr, uint16_t Device, uint8_t Volume, uint
   Value = AUDIO_IO_Read(DeviceAddr, 0x03);
   counter += CODEC_IO_Write(DeviceAddr, 0x03, ((Value & 0x0E) | 0xA0));
 
-  /* Interface control : 0x0C Loopback off, Slave, I2S (SDIN and SOUT), Digital mix off, Mic mix off */
-  counter += CODEC_IO_Write(DeviceAddr, 0x04, 0x0D);
+  /* Interface control : Loopback off, Slave, I2S (SDIN and SOUT), Digital mix off, Mic mix off */
+  counter += CODEC_IO_Write(DeviceAddr, 0x04, 0x0C);
   
   /* Mic control : ADC single volume off, ADCB boost off, ADCA boost off, MicBias on AIN3B/MICIN2 pin, MicBias level 0.8xVA, MICB boost 16db, MICA boost 16dB */
   counter += CODEC_IO_Write(DeviceAddr, 0x05, 0x00);
@@ -165,9 +165,8 @@ uint32_t cs42l51_Init(uint16_t DeviceAddr, uint16_t Device, uint8_t Volume, uint
   /* ADC control : ADCB HPF off, ADCB HPF freeze off, ADCA HPF off, ADCA HPF freeze off, Soft ramp B off, Zero cross B off, Soft ramp A off, Zero cross A off */
   counter += CODEC_IO_Write(DeviceAddr, 0x06, 0x00);
 
-  /* ADC Input Select, Invert and Mute : 0x02. AIN1B to PGAB, AIN3A to PreAmp to PGAA, ADCB invert off, ADCA invert off, ADCB mute on, ADCA mute off */
-  // mute off both
-  counter += CODEC_IO_Write(DeviceAddr, 0x07, 0x00);
+  /* ADC Input Select, Invert and Mute : AIN1B to PGAB, AIN3A to PreAmp to PGAA, ADCB invert off, ADCA invert off, ADCB mute on, ADCA mute off */
+  counter += CODEC_IO_Write(DeviceAddr, 0x07, 0x32);
   
   /* DAC output control : HP Gain to 1, Single volume control off, PCM invert signals polarity off, DAC channels mute on */
   counter += CODEC_IO_Write(DeviceAddr, 0x08, 0xC3);
@@ -288,13 +287,13 @@ uint32_t cs42l51_Play(uint16_t DeviceAddr, uint16_t* pBuffer, uint16_t Size)
 
     if(CS42L51_Device & INPUT_DEVICE_MIC1)
     {
-      /* Power control 1 : 0xF5: PDN_PGAA, PDN_ADCA disable. */
+      /* Power control 1 : PDN_PGAA, PDN_ADCA disable. */
       Value = AUDIO_IO_Read(DeviceAddr, 0x02);
-      counter += CODEC_IO_Write(DeviceAddr, 0x02, (Value & 0x61));
+      counter += CODEC_IO_Write(DeviceAddr, 0x02, (Value & 0xF5));
       
-      /* Mic Power and Speed Control : 0xF9. PDN_MICA, PDN_MIC_BIAS disable. */
+      /* Mic Power and Speed Control : PDN_MICA, PDN_MIC_BIAS disable. */
       Value = AUDIO_IO_Read(DeviceAddr, 0x03);
-      counter += CODEC_IO_Write(DeviceAddr, 0x03, (Value & 0xFF));
+      counter += CODEC_IO_Write(DeviceAddr, 0x03, (Value & 0xF9));
     }
     
     /* Power control : Exit standby (PDN = 0) */
