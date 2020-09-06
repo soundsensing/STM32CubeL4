@@ -319,13 +319,13 @@ AUDIO_RECORDER_ErrorTypdef  AUDIO_RECORDER_StopRec(void)
   {
     AUDIO_RECORDER_PauseResume();  
   }
-  
+
+#if 0  
   if(BSP_AUDIO_IN_Stop() == AUDIO_ERROR)
   {
     Error_Handler();
   }
   
-#if 0
   if(BSP_AUDIO_IN_DeInit() == AUDIO_ERROR)
   {
     Error_Handler();
