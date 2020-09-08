@@ -1609,7 +1609,7 @@ void HAL_SAI_MspInit(SAI_HandleTypeDef *hsai)
     /* Configure the DMA Stream */
     HAL_DMA_Init(&hDmaSaiTx);
     /* SAI DMA IRQ Channel configuration */
-    HAL_NVIC_SetPriority(DMA2_Channel1_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(DMA2_Channel1_IRQn, 10, 0);
     HAL_NVIC_EnableIRQ(DMA2_Channel1_IRQn);
   }
   else /* SAI1_BlockB */
@@ -1641,7 +1641,7 @@ void HAL_SAI_MspInit(SAI_HandleTypeDef *hsai)
     /* Configure the DMA Stream */
     HAL_DMA_Init(&hDmaSaiRx);
     /* SAI DMA IRQ Channel configuration */
-    HAL_NVIC_SetPriority(DMA2_Channel2_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(DMA2_Channel2_IRQn, 10, 0);
     HAL_NVIC_EnableIRQ(DMA2_Channel2_IRQn);
   }
 }
@@ -1965,7 +1965,7 @@ void HAL_DFSDM_FilterMspInit(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
     HAL_DMA_Init(&hAudioIn.hDmaDfsdmLeft);
 
     /* DMA IRQ Channel configuration */
-    HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 10, 0);
     HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
   }
   else /* DFSDM1_Filter1 */
@@ -1997,7 +1997,7 @@ void HAL_DFSDM_FilterMspInit(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
     HAL_DMA_Init(&hAudioIn.hDmaDfsdmRight);
 
     /* DMA IRQ Channel configuration */
-    HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 10, 0);
     HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
   }
 }
