@@ -490,6 +490,10 @@ AUDIO_RECORDER_ErrorTypdef  AUDIO_RECORDER_Resume(void)
   */
 void AUDIO_RECORDER_TransferComplete_CallBack(void)
 {
+  if (haudio.in.state != AUDIO_RECORDER_RECORDING) {
+    return;
+  }
+
 #ifdef DEBUG_AUDIO_APP
   if(osMessagePut(AudioEvent, REC_BUFFER_OFFSET_FULL, 0) != osOK){
     /* Fifo overflow !!! */
@@ -508,7 +512,11 @@ void AUDIO_RECORDER_TransferComplete_CallBack(void)
   * @retval None
   */
 void AUDIO_RECORDER_HalfTransfer_CallBack(void)
-{ 
+{
+  if (haudio.in.state != AUDIO_RECORDER_RECORDING) {
+    return;
+  }
+
 #ifdef DEBUG_AUDIO_APP
   if (osMessagePut(AudioEvent, REC_BUFFER_OFFSET_HALF, 0) != osOK)
   {
