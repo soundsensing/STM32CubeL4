@@ -59,12 +59,165 @@ static void SYSCLKConfig_STOP(void);
 #define SDCARD_ENABLE_PIN GPIO_PIN_0
 #define SDCARD_ENABLE_PORT_CLK_ENABLE()    __HAL_RCC_GPIOD_CLK_ENABLE()
 
+#include <stdbool.h>
+
+#if 0
+typedef enum _bq25070_current {
+    BQ25070_CHARGE_OFF = 0,
+    BQ25070_CHARGE_DEFAULT = -1,
+    BQ25070_CHARGE_MIN = 4,
+    BQ25070_CHARGE_500mA = 8,
+    BQ25070_CHARGE_1A = 11,
+    BQ25070_CHARGE_MAX = 11,
+} bq25070_current;
+
+bool bq25070_configure(bq25070_current current);
+
+#define BG25070_CTRL_PORT GPIOG
+#define BG25070_CTRL_PIN GPIO_PIN_6
+bool
+bq25070_configure(bq25070_current current)
+{
+
+    DWT_Delay_Init();
+
+    int pulses = (int)current;
+    if (current == BQ25070_CHARGE_DEFAULT) {
+        pulses = 0;
+    }
+    const bool enable = (current != BQ25070_CHARGE_OFF);
+
+
+    // Setup GPIO pin
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Pin = BG25070_CTRL_PIN;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(BG25070_CTRL_PORT, &GPIO_InitStruct);
+
+
+    // Turn off
+    HAL_GPIO_WritePin(BG25070_CTRL_PORT, BG25070_CTRL_PIN, GPIO_PIN_SET);
+    HAL_Delay(10);
+
+    if (!enable) {
+        return true;
+    }
+
+    // enable
+    HAL_GPIO_WritePin(BG25070_CTRL_PORT, BG25070_CTRL_PIN, GPIO_PIN_RESET);
+    HAL_Delay(10);
+
+    // pulse to configure charge current
+    // Ech pulse should be 50-1000 useconds
+    for (int i=0; i<pulses; i++) {
+        HAL_GPIO_WritePin(BG25070_CTRL_PORT, BG25070_CTRL_PIN, GPIO_PIN_SET);
+        DWT_Delay_us(100);
+        HAL_GPIO_WritePin(BG25070_CTRL_PORT, BG25070_CTRL_PIN, GPIO_PIN_RESET);
+        DWT_Delay_us(100);
+    }
+
+    return true;
+}
+#endif
+
+#define BG96_BOOT_TIME (7000U)
+
+#define MDM_RST_Pin GPIO_PIN_2
+#define MDM_RST_GPIO_Port GPIOB
+#define MDM_PWR_EN_Pin GPIO_PIN_3
+#define MDM_PWR_EN_GPIO_Port GPIOD
+
+#define MODEM_RST_GPIO_PORT     ((GPIO_TypeDef *)MDM_RST_GPIO_Port)    /* for DiscoL496: GPIOB      */
+#define MODEM_RST_PIN           MDM_RST_Pin                            /* for DiscoL496: GPIO_PIN_2 */
+#define MODEM_PWR_EN_GPIO_PORT  ((GPIO_TypeDef *)MDM_PWR_EN_GPIO_Port) /* for DiscoL496: GPIOD      */
+#define MODEM_PWR_EN_PIN        MDM_PWR_EN_Pin                         /* for DiscoL496: GPIO_PIN_3 */
+
+#define LED_BLUE_PIN GPIO_PIN_8
+#define LED_GREEN_PIN GPIO_PIN_10
+#define LED_RED_PIN GPIO_PIN_5
+#define LED_PORT GPIOA
+#define LED_GPIO_CLK_ENABLE()            __HAL_RCC_GPIOA_CLK_ENABLE()
+
+bool
+statusled_set_rgb(uint8_t r, uint8_t g, uint8_t b)
+{
+    HAL_GPIO_WritePin(LED_PORT, LED_RED_PIN, (r > 127) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(LED_PORT, LED_GREEN_PIN, (g > 127) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(LED_PORT, LED_BLUE_PIN, (b > 127) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+
+    return true;
+}
+
+void
+modem_gpio_init()
+{
+
+  // PWRKEY, RST
+  uint8_t normal_state = GPIO_PIN_SET;
+
+  GPIO_InitTypeDef GPIO_InitStruct;
+
+  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, normal_state);
+  HAL_GPIO_WritePin(MODEM_RST_GPIO_PORT, MODEM_RST_PIN, normal_state);
+
+  // PWRKEY and RESET config
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+
+  /* Init GPIOs - RESET pin */
+  GPIO_InitStruct.Pin = MODEM_RST_PIN;
+  HAL_GPIO_Init(MODEM_RST_GPIO_PORT, &GPIO_InitStruct);
+
+  /* Init GPIOs - PWR_EN pin */
+  GPIO_InitStruct.Pin = MODEM_PWR_EN_PIN;
+  HAL_GPIO_Init(MODEM_PWR_EN_GPIO_PORT, &GPIO_InitStruct);
+
+}
+
+void
+modem_power_on()
+{
+
+  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_RESET);
+  HAL_Delay(600U);
+  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_SET);
+  HAL_Delay(BG96_BOOT_TIME);
+}
+
+void 
+modem_power_off()
+{
+
+  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_RESET);
+  // 650-1500 ms according to spec. 3.6.2.1. Turn off Module through PWRKEY
+  HAL_Delay(650U);
+  //HAL_Delay(1500U);
+  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_SET);
+  // wait for turn off
+  HAL_Delay(5000U);
+}
+
+
+void
+modem_power_reset()
+{
+  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_RESET);
+  HAL_Delay(3000U);
+  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_SET);
+}
+
 bool led_state = false;
+
+
+
 
 int main(void)
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-  
+
+  GPIO_InitTypeDef  GPIO_InitStruct = {0,};
+
   /* STM32L4xx HAL library initialization:
        - Configure the Flash prefetch
        - Systick timer is configured by default as source of time base, but user 
@@ -75,18 +228,25 @@ int main(void)
        - Set NVIC Group Priority to 4
        - Low Level Initialization
      */
+
   HAL_Init();
 
-  /* Configure LED1, and LED2 */
-  BSP_LED_Init(LED1);
-  BSP_LED_Init(LED2);
-  BSP_LED_Init(LED3);
 
-  BSP_LED_Off(LED1);
-  BSP_LED_Off(LED2);
-  BSP_LED_Off(LED3);
+  /* Configure the system clock to 80 MHz */
+  SystemClock_Config();
 
-  GPIO_InitTypeDef  GPIO_InitStruct;
+  //HAL_RCC_MCOConfig(RCC_MCO, RCC_MCO1SOURCE_NOCLOCK, RCC_MCODIV_1);
+
+#if 1
+
+  /* Enable Power Clock */
+  __HAL_RCC_PWR_CLK_ENABLE();
+
+  /* Ensure that MSI is wake-up system clock */ 
+  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
+
+
+  // Disable battery charging
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
@@ -115,37 +275,43 @@ int main(void)
   HAL_GPIO_WritePin(CODEC_RESET_PORT, CODEC_RESET_PIN, GPIO_PIN_RESET);
 #endif
 
-  /* Configure the system clock to 80 MHz */
-  SystemClock_Config();
+#endif
 
-  /* User push-button (External line 13) will be used to wakeup the system from STOP mode */
-  BSP_PB_Init(BUTTON_USER, BUTTON_MODE_EXTI);
-
-  /* Enable Power Clock */
-  __HAL_RCC_PWR_CLK_ENABLE();
-  
-  /* Ensure that MSI is wake-up system clock */ 
-  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
+  modem_gpio_init();
 
 
+    LED_GPIO_CLK_ENABLE();
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_PULLDOWN;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Pin = LED_RED_PIN|LED_GREEN_PIN|LED_BLUE_PIN;
+    HAL_GPIO_Init(LED_PORT, &GPIO_InitStruct);
+
+
+  statusled_set_rgb(0, 0, 0);
 	HAL_Delay(1000);
-	BSP_LED_On(LED2);
-	HAL_Delay(5000);
-	BSP_LED_Off(LED2);
+  statusled_set_rgb(255, 0, 0);
+	HAL_Delay(1000);
+  statusled_set_rgb(0, 0, 0);
 
-	  BSP_LED_Off(LED1);
-	  BSP_LED_Off(LED2);
-	  BSP_LED_Off(LED3);
+
+#if 1
+
+  statusled_set_rgb(255, 255, 255);
+    //modem_power_on();
+    modem_power_reset();
+
+	HAL_Delay(10000);
+    modem_power_off();
+  statusled_set_rgb(0, 0, 0);
+
+#endif
+
+
+	HAL_Delay(10000);
 
   while (1)
   {
-#if 0
-	BSP_LED_Init(LED2);
-	HAL_Delay(100);
-	BSP_LED_On(LED2);
-	HAL_Delay(500);
-	BSP_LED_Off(LED2);
-#endif
 
 #if 0
       /* Enable GPIOs clock */
