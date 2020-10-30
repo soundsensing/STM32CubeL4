@@ -36,13 +36,14 @@
 /* RTC handler declaration */
 RTC_HandleTypeDef RtcHandle;
 /* Buffers used for displaying Time and Date */
-uint8_t aShowTime[50] = {0}, aShowTimeStamp[50] = {0};
-uint8_t aShowDate[50] = {0}, aShowDateStamp[50] = {0};
+#define OUT_SIZE 256
+char out[OUT_SIZE] = {0};
+
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
 static void RTC_TimeStampConfig(void);
-static void RTC_CalendarShow(void);
+void RTC_CalendarShow(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -107,6 +108,7 @@ int main(void)
   {
     /*##-3- Display the updated Time and Date ################################*/
     RTC_CalendarShow();
+    HAL_Delay(20*1000);
   }
 }
 
@@ -241,10 +243,7 @@ void HAL_RTCEx_TimeStampEventCallback(RTC_HandleTypeDef *hrtc)
   
   HAL_RTCEx_GetTimeStamp(&RtcHandle, &sTimeStampget, &sTimeStampDateget, RTC_FORMAT_BIN);
 
-  /* Display time Format : hh:mm:ss */
-  sprintf((char*)aShowTimeStamp,"%.2d:%.2d:%.2d", sTimeStampget.Hours, sTimeStampget.Minutes, sTimeStampget.Seconds);
-  /* Display date Format : mm-dd */
-  sprintf((char*)aShowDateStamp,"%.2d-%.2d-%.2d", sTimeStampDateget.Month, sTimeStampDateget.Date, 2016);
+
 }
 
 /**
@@ -253,7 +252,16 @@ void HAL_RTCEx_TimeStampEventCallback(RTC_HandleTypeDef *hrtc)
   * @param  showdate : pointer to buffer
   * @retval None
   */
-static void RTC_CalendarShow(void)
+
+void LogTime(const char *str) {
+
+	// No serial in this example. Code should use GDB to break here
+	// Try to make sure function does not get elided by compiler
+	volatile int64_t tick = HAL_GetTick();
+
+}
+
+void RTC_CalendarShow(void)
 {
   RTC_DateTypeDef sdatestructureget;
   RTC_TimeTypeDef stimestructureget;
@@ -263,10 +271,15 @@ static void RTC_CalendarShow(void)
   /* Get the RTC current Date */
   HAL_RTC_GetDate(&RtcHandle, &sdatestructureget, RTC_FORMAT_BIN);
   
-  /* Display time Format : hh:mm:ss */
-  sprintf((char*)aShowTime,"%.2d:%.2d:%.2d", stimestructureget.Hours, stimestructureget.Minutes, stimestructureget.Seconds);
-  /* Display date Format : mm-dd-yy */
-  sprintf((char*)aShowDate,"%.2d-%.2d-%.2d", sdatestructureget.Month, sdatestructureget.Date, 2000 + sdatestructureget.Year);
+  const int64_t tick = HAL_GetTick();
+  sprintf((char*)out,"time-status rtc.time=%.2d-%.2d-%.2dT%.2d:%.2d:%.2dZ tick=%ld \r\n",
+		  2000 + sdatestructureget.Year, sdatestructureget.Month, sdatestructureget.Date,
+		  stimestructureget.Hours, stimestructureget.Minutes, stimestructureget.Seconds,
+		  (long int)tick
+  );
+
+  LogTime(out);
+
 }
 #ifdef  USE_FULL_ASSERT
 /**
