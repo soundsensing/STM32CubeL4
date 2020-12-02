@@ -72,11 +72,12 @@
 #define AUDIO_REC_BIT_RESOLUTION           16
 
 #define DIGITAL_MIC_FREQ                   BSP_AUDIO_FREQUENCY_48K
-#define DIGITAL_MIC_VOLUME                 80
+#define DIGITAL_MIC_VOLUME                 100
 #define DIGITAL_MIC_NBR_CHANNEL            2
 
-#define HEADSET_MIC_FREQ                   BSP_AUDIO_FREQUENCY_16K
-#define HEADSET_MIC_VOLUME                 80
+//#define HEADSET_MIC_FREQ                   BSP_AUDIO_FREQUENCY_16K
+#define HEADSET_MIC_FREQ                   BSP_AUDIO_FREQUENCY_48K
+#define HEADSET_MIC_VOLUME                 100
 #define HEADSET_MIC_NBR_CHANNEL            1
 
 /* Exported types ------------------------------------------------------------*/
