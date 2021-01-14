@@ -32,8 +32,8 @@
 /* Exported constants --------------------------------------------------------*/
 
 /* Enable one of the following defines to select which clock will be used for USB */
-/* #define USB_USE_LSE_MSI_CLOCK */  /* Use MSI clock automatically trimmed by LSE as USB clock */
-#define USB_USE_HSE_CLOCK /* Use HSE as clock source for USB */
+#define USB_USE_LSE_MSI_CLOCK /* Use MSI clock automatically trimmed by LSE as USB clock */
+//#define USB_USE_HSE_CLOCK /* Use HSE as clock source for USB */
 
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */

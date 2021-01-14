@@ -64,26 +64,41 @@ int main(void)
   HAL_PWREx_EnableVddUSB();
   
   /* Configure LED1, LED2, LED3 and LED4 */
-  BSP_LED_Init(LED1);
-  BSP_LED_Init(LED2);
-  BSP_LED_Init(LED3);
-  BSP_LED_Init(LED4);
+  //BSP_LED_Init(LED1);
+  //BSP_LED_Init(LED2);
+  //BSP_LED_Init(LED3);
+  //BSP_LED_Init(LED4);
    
+  volatile USBD_StatusTypeDef status = USBD_FAIL;
+
   /* Init MSC Application */
-  USBD_Init(&USBD_Device, &MSC_Desc, 0);
+  status = USBD_Init(&USBD_Device, &MSC_Desc, 0);
+  if (status != USBD_OK) {
+	  Error_Handler();
+  }
   
   /* Add Supported Class */
-  USBD_RegisterClass(&USBD_Device, USBD_MSC_CLASS);
+  status = USBD_RegisterClass(&USBD_Device, USBD_MSC_CLASS);
+  if (status != USBD_OK) {
+	  Error_Handler();
+  }
   
   /* Add Storage callbacks for MSC Class */
-  USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);
+  status = USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);
+  if (status != USBD_OK) {
+	  Error_Handler();
+  }
   
     /* Start Device Process */
-  USBD_Start(&USBD_Device);
+  status = USBD_Start(&USBD_Device);
+  if (status != USBD_OK) {
+	  Error_Handler();
+  }
 
   /* Run Application (Interrupt mode) */
   while (1)
   {
+	  HAL_Delay(100);
   }
 }
 
@@ -235,7 +250,7 @@ static void SystemClock_Config(void)
 static void Error_Handler(void)
 {
   /* Turn LED3 on */
-  BSP_LED_On(LED3);
+  //BSP_LED_On(LED3);
 
   while (1)
   {
@@ -253,10 +268,10 @@ void Toggle_Leds(void)
   
   if(ticks++ == 100)
   {
-    BSP_LED_Toggle(LED1);
-    BSP_LED_Toggle(LED2);
-    BSP_LED_Toggle(LED3);
-    BSP_LED_Toggle(LED4);
+    //BSP_LED_Toggle(LED1);
+    //BSP_LED_Toggle(LED2);
+    //BSP_LED_Toggle(LED3);
+    //BSP_LED_Toggle(LED4);
     ticks = 0;
   }  
 }
