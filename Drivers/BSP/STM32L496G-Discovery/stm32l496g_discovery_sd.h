@@ -113,7 +113,7 @@ void    BSP_SD_IRQHandler(void);
 void    BSP_SD_DMA_Tx_IRQHandler(void);
 void    BSP_SD_DMA_Rx_IRQHandler(void);
 uint8_t BSP_SD_GetCardState(void);
-void    BSP_SD_GetCardInfo(BSP_SD_CardInfo *CardInfo);
+uint8_t BSP_SD_GetCardInfo(BSP_SD_CardInfo *CardInfo);
 uint8_t BSP_SD_IsDetected(void);
 
 /* These __weak functions can be surcharged by application code in case the current settings

@@ -407,10 +407,10 @@ uint8_t BSP_SD_GetCardState(void)
   * @param  CardInfo: Pointer to HAL_SD_CardInfoTypedef structure
   * @retval None
   */
-void BSP_SD_GetCardInfo(BSP_SD_CardInfo *CardInfo)
+uint8_t BSP_SD_GetCardInfo(BSP_SD_CardInfo *CardInfo)
 {
   /* Get SD card Information */
-  HAL_SD_GetCardInfo(&uSdHandle, CardInfo);
+  return HAL_SD_GetCardInfo(&uSdHandle, CardInfo);
 }
 
 /**
