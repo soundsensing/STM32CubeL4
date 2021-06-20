@@ -195,7 +195,7 @@ typedef struct
 #define DFSDMOverSampling(__FREQUENCY__) \
         (__FREQUENCY__ == AUDIO_FREQUENCY_8K)  ? 256 \
       : (__FREQUENCY__ == AUDIO_FREQUENCY_11K) ? 256 \
-      : (__FREQUENCY__ == AUDIO_FREQUENCY_16K) ? 128 \
+      : (__FREQUENCY__ == AUDIO_FREQUENCY_16K) ? 96 \
       : (__FREQUENCY__ == AUDIO_FREQUENCY_22K) ? 128 \
       : (__FREQUENCY__ == AUDIO_FREQUENCY_32K) ? 64 \
       : (__FREQUENCY__ == AUDIO_FREQUENCY_44K) ? 64  \
@@ -204,7 +204,7 @@ typedef struct
 #define DFSDMClockDivider(__FREQUENCY__) \
         (__FREQUENCY__ == AUDIO_FREQUENCY_8K)  ? 24 \
       : (__FREQUENCY__ == AUDIO_FREQUENCY_11K) ? 4 \
-      : (__FREQUENCY__ == AUDIO_FREQUENCY_16K) ? 24 \
+      : (__FREQUENCY__ == AUDIO_FREQUENCY_16K) ? 32 \
       : (__FREQUENCY__ == AUDIO_FREQUENCY_22K) ? 4 \
       : (__FREQUENCY__ == AUDIO_FREQUENCY_32K) ? 24 \
       : (__FREQUENCY__ == AUDIO_FREQUENCY_44K) ? 4  \
