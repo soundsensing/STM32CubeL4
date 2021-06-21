@@ -222,7 +222,7 @@ typedef struct
 #define DFSDMRightBitShift(__FREQUENCY__) \
         (__FREQUENCY__ == AUDIO_FREQUENCY_8K)  ? 8 \
       : (__FREQUENCY__ == AUDIO_FREQUENCY_11K) ? 8 \
-      : (__FREQUENCY__ == AUDIO_FREQUENCY_16K) ? 6 \
+      : (__FREQUENCY__ == AUDIO_FREQUENCY_16K) ? 4 \
       : (__FREQUENCY__ == AUDIO_FREQUENCY_22K) ? 6 \
       : (__FREQUENCY__ == AUDIO_FREQUENCY_32K) ? 8 \
       : (__FREQUENCY__ == AUDIO_FREQUENCY_44K) ? 2 \
